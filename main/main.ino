@@ -1,5 +1,6 @@
 #include <WiFi.h>
 #include <Adafruit_ADS1X15.h>
+#include "main.h"
 
 
 //____________________________________________________
@@ -21,6 +22,8 @@
 Adafruit_ADS1015 ads;
 
 //separate 
+
+int name  = 32;
 int DutyCycle = 0;
 int mq7_Ro1, mq7_Ro2;
 uint32_t tmr;
@@ -47,7 +50,7 @@ const char* password = "OtYtDvthkfErhf]ybYsCkfdfYsDjkz";
 //arduino_ghub
 //_____________________________________________________
 float volts_midArifm_pwmSig(int num_countdowns = 100) { //напруга на транзисторі
-  float sum = 0;
+  float sum = zero;
   int16_t adc;
   float volts;                      
   for (int i = 0; i < num_countdowns; i++)  
