@@ -200,6 +200,7 @@ void loop() {
       }
      flag = !flag;
     }
+    //counter
     if (millis() - tmr2 >= period3)
     { 
       
