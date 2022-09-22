@@ -5,10 +5,19 @@
 //git status
 //git add
 //git commit -m "..."
+//git branch
+//git branch test
+//git checkout test
+
+//for commit
 //1) git add to checkinig files
 //2) if you modife data -> use git add again
 //3)do commit
-
+//---
+//fot create branches
+//1)git branch test (create)
+//2)git checkout test (change branch)
+//3)
 //____________________________________________________
 #define pin_voltageOntransistor 1 //напруга на транзисторі
 #define pin_voltageOn_CO1 2 //напруга на першому датчику
