@@ -25,6 +25,9 @@
 //
 //git config --global user.name git config --global email.name
 //git remote add origin https://github.com/igoryashkka/Analyzer_ESP.git
+//git clone https://github.com/igoryashkka/Analyzer_ESP.git (for cloning)
+
+
 //____________________________________________________
 #define pin_voltageOntransistor 1 //напруга на транзисторі
 #define pin_voltageOn_CO1 2 //напруга на першому датчику
