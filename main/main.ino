@@ -1,38 +1,16 @@
 #include <WiFi.h>
-#include <Adafruit_ADS1X15.h>
 #include "main.h"
-
+#include "logic_esp.h"
 
 //____________________________________________________
-#define pin_voltageOntransistor 1 //напруга на транзисторі
-#define pin_voltageOn_CO1 2 //напруга на першому датчику
-#define pin_voltageOn_CO2 3 //напруга на другому датчику
-#define period1 60*1000L
-#define period2 90*1000L
-#define MQ7_LOAD_RESISTOR 10000
-#define MQ7_CLEANAIR_RSRO 11.7
-#define MQ7_REFERENCE_VOLTAGE 3.3
-#define MQ7_LOAD_RESISTOR 10000
-#define PWM_SIG 15
-#define period1 60*1000L
-#define period2 90*1000L
-#define period3 1000L
+
+//#define period1 60*1000L
+//#define period2 90*1000L
+//#define period3 1000L
 #define period4 3000L
-
-Adafruit_ADS1015 ads;
-
-//separate 
-
-int name  = 32;
-int DutyCycle = 0;
-int mq7_Ro1, mq7_Ro2;
-uint32_t tmr;
-uint32_t tmr2;
 uint32_t tmr3;
-bool flag = false;
-int ppm1[90];
-int ppm2[90];
-int counter = 0;
+
+
 //_____________________________________________________
 
 WiFiServer server(80);
@@ -49,96 +27,19 @@ const char* password = "OtYtDvthkfErhf]ybYsCkfdfYsDjkz";
 //arduino_git
 //arduino_ghub
 //_____________________________________________________
-float volts_midArifm_pwmSig(int num_countdowns = 100) { //напруга на транзисторі
-  float sum = zero;
-  int16_t adc;
-  float volts;                      
-  for (int i = 0; i < num_countdowns; i++)  
-    sum += ads.readADC_SingleEnded(pin_voltageOntransistor);                  
-  volts = ads.computeVolts(sum / num_countdowns);
-  return volts;
-}
 
-void dutyCycleOfPWM() { // калібруємо напругу на транзисторія для режиму вимірювання
-  const int freq = 100;
-  const int ledChannel = 0;
-  const int resolution = 8;
-  bool flag_correct_dutyCycle = 0;
-  
-  ledcSetup(ledChannel, freq, resolution);
-  ledcAttachPin(PWM_SIG, ledChannel);
 
-  for(int dutyCycle = 0; dutyCycle <= 255; dutyCycle++){   
-    ledcWrite(ledChannel, dutyCycle);
-      //delay(50);
-      
-      float volt_level = volts_midArifm_pwmSig();
-      Serial.println(volt_level); 
-      if(volt_level >= 3.55 && volt_level <= 3.6 )
-      {
-        DutyCycle = dutyCycle; // ALERT!!!!! CHANGING GLOBAL VAR!!!!!!!!!!!!!!!!!!!
-        Serial.print("voltage: ");  
-        Serial.println(volt_level);
-        Serial.println(DutyCycle);
-        flag_correct_dutyCycle = 1;
-        break;
-      }
-      
-    }
-    if(flag_correct_dutyCycle == 0)
-    {
-      Serial.println("not correct DutyCycle. Pls restart CO_analisator");
-      while(1);
-    }
-}
 
-int calib_mq7_Ro(int pin_voltageOn)
-{
-  float mq7_adc_volts;
-  int mq7_adc;
-  int Rs;
-  int Ro;
 
-  mq7_adc = ads.readADC_SingleEnded(pin_voltageOn);
-  mq7_adc_volts = ads.computeVolts(mq7_adc);
-  Rs = (((float)MQ7_REFERENCE_VOLTAGE * (float)MQ7_LOAD_RESISTOR)/mq7_adc_volts)- (float)MQ7_LOAD_RESISTOR;
-  Ro = Rs/MQ7_CLEANAIR_RSRO;
 
-  Serial.print("Rs: ");
-  Serial.print(Rs);
-  Serial.print("; volt_adc: ");
-  Serial.println(mq7_adc_volts);
-  
-  return Ro;
-}
 
-int get_rawValue_mq7(int Ro, float reference_voltage_value, float pinCO)
-{ 
-  int ppm;
-  int Rs;
-  float RsRo;
-  float mq7_adc_volts;
-  int mq7_adc;
-  mq7_adc = ads.readADC_SingleEnded(pinCO);
-  mq7_adc_volts = ads.computeVolts(mq7_adc);
-  Rs = (((float)MQ7_REFERENCE_VOLTAGE * (float)MQ7_LOAD_RESISTOR)/mq7_adc_volts)- (float)MQ7_LOAD_RESISTOR;
-  RsRo = (float)Rs/(float)Ro; 
-  if(RsRo>0.09) {
-    ppm=(pow((0.196/RsRo),(1/0.72)))*1000;
-  }
-  else {ppm=3999;}
-
-  return (float)RsRo;
-
-}
 
 //_____________________________________________________
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-
-Serial.print("Connecting to ");
+  Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -152,36 +53,10 @@ Serial.print("Connecting to ");
   Serial.println(WiFi.localIP());
   server.begin();
 
-
-
-
-
-Serial.println("Hello!");
-  
-  if (!ads.begin()) {
-    Serial.println("Failed to initialize ADS.");
-    while (1);
-  }
-
-
-  
+  initADC();  
   dutyCycleOfPWM();
-
-  ledcWrite(0, 255);
-  delay(period1);
-   
-  ledcWrite(0, DutyCycle);
-  delay(1000);
-  mq7_Ro1 = calib_mq7_Ro(pin_voltageOn_CO1);
-  mq7_Ro2 = calib_mq7_Ro(pin_voltageOn_CO2);
+  calibSensors();
  
-
-  
-  
-  Serial.print("mq7_Ro1: ");
-  Serial.print(mq7_Ro1);
-  Serial.print("; mq7_Ro2: ");
-  Serial.println(mq7_Ro2);
 }
 
 void loop() {
@@ -200,7 +75,7 @@ void loop() {
       }
      flag = !flag;
     }
-    //counter
+    //contrer
     if (millis() - tmr2 >= period3)
     { 
       
