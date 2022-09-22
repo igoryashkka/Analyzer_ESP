@@ -8,6 +8,8 @@
 //git branch
 //git branch test
 //git checkout test
+//git merge 
+
 
 //for commit
 //1) git add to checkinig files
@@ -17,8 +19,12 @@
 //for create branches
 //1)git branch test (create)
 //2)git checkout test (change branch)
-//3)
 //
+//Merge branches
+//1)git merge test (add changes from test in master)
+//
+//git config --global user.name git config --global email.name
+//git remote add origin https://github.com/igoryashkka/Analyzer_ESP.git
 //____________________________________________________
 #define pin_voltageOntransistor 1 //напруга на транзисторі
 #define pin_voltageOn_CO1 2 //напруга на першому датчику
@@ -37,7 +43,7 @@
 
 Adafruit_ADS1015 ads;
 
-
+//separate 
 int DutyCycle = 0;
 int mq7_Ro1, mq7_Ro2;
 uint32_t tmr;
