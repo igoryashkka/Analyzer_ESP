@@ -4,8 +4,10 @@
 //git init
 //git status
 //git add
+//git commit -m "..."
 //1) git add to checkinig files
-//2) 
+//2) if you modife data -> use git add again
+//3)do commit
 
 //____________________________________________________
 #define pin_voltageOntransistor 1 //напруга на транзисторі
