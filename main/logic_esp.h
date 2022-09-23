@@ -11,9 +11,8 @@
 #define MQ7_REFERENCE_VOLTAGE 3.3
 #define MQ7_LOAD_RESISTOR 10000
 #define PWM_SIG 15
-#define period1 60*1000L
-#define period2 90*1000L
-#define period3 1000L
+
+//#define period3 1000L
 
 //____________________________________________________
 static Adafruit_ADS1015 ads;
@@ -21,9 +20,6 @@ static Adafruit_ADS1015 ads;
 static int name  = 32;
 static int DutyCycle = 0;
 static int mq7_Ro1, mq7_Ro2;
-static uint32_t tmr;
-static uint32_t tmr2;
-static bool flag = false;
 static int ppm1[90];
 static int ppm2[90];
 static int counter = 0;
