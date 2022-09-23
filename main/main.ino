@@ -2,10 +2,14 @@
 #include "main.h"
 #include "logic_esp.h"
 
+
+TaskHandle_t Task1;
+ 
+TaskHandle_t Task2;
 //____________________________________________________
 
-//#define period1 60*1000L
-//#define period2 90*1000L
+#define period1 60*1000L
+#define period2 90*1000L
 #define period3 1000L
 #define period4 3000L
 uint32_t tmr3;
@@ -25,7 +29,7 @@ const long timeoutTime = 2000;
 int arr[90]={0};
 int arrayDiff[90]={0};
 const char* ssid = "lab-503";
-const char* password = "OtYtDvthkfErhf]ybYsCkfdfYsDjkz";
+const char* password = "***";
 //arduino_git
 //arduino_ghub
 //_____________________________________________________
@@ -58,48 +62,20 @@ void setup() {
   initADC();  
   dutyCycleOfPWM();
   calibSensors();
+
+xTaskCreatePinnedToCore(Task1code,"server",10000,NULL,1,&Task1,0);                            
+  delay(500); 
+xTaskCreatePinnedToCore(Task2code,"main_logic",10000,NULL,1,&Task2,1);
+  delay(500);
+  
  
 }
-
-void loop() {
-
-  if (millis() - tmr >= (flag ? period2 : period1)) {
-    tmr = millis();
-    
-    // код
-      if(flag==0)
-      {
-        ledcWrite(0, 255);
-      }
-      if(flag==1)
-      {
-        ledcWrite(0, DutyCycle);
-      }
-     flag = !flag;
-    }
-    //contrer
-    if (millis() - tmr2 >= period3)
-    { 
-      
-      tmr2 = millis();
-      ppm1[counter] = get_rawValue_mq7(mq7_Ro1, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO1);
-      ppm2[counter] = get_rawValue_mq7(mq7_Ro2, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO2);
-      arr[counter]=ppm1[counter];
-      counter++;
-      if(counter>90){
-        counter = 0;
-        }
-      Serial.print("ppm1: ");  
-      Serial.print(ppm1[counter] );
-      //Serial.print("; ppm2: ");  
-      //Serial.print(ppm2 );
-     // Serial.print("; deltaPPM: ");  
-      //Serial.println(ppm2-ppm1 );
-    }
-
-  if(millis() - tmr3 >= period4){
-     tmr3 = millis();
+void Task1code( void * pvParameters ){
+ // Serial.print("Task1 running on core ");
+ // Serial.println(xPortGetCoreID());
  
+  for(;;){
+    
   WiFiClient client = server.available();   
 
   if (client) {                            
@@ -177,6 +153,58 @@ void loop() {
     Serial.println("Client disconnected.");
     Serial.println("");
   }
-   }
+  } 
+}
+
+
+
+
+void Task2code( void * pvParameters ){
+ // Serial.print("Task1 running on core ");
+ // Serial.println(xPortGetCoreID());
+ 
+  for(;;){
+     if (millis() - tmr >= (flag ? period2 : period1)) {
+    tmr = millis();
+    // TODO SWITCH
+      if(flag==0)
+      {
+        ledcWrite(0, 255);
+      }
+      if(flag==1)
+      {
+        ledcWrite(0, DutyCycle);
+      }
+     flag = !flag;
+    }
+    //contrer
+    if (millis() - tmr2 >= period3)
+    { 
+      
+      tmr2 = millis();
+      ppm1[counter] = get_rawValue_mq7(mq7_Ro1, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO1);
+      ppm2[counter] = get_rawValue_mq7(mq7_Ro2, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO2);
+      arr[counter]=ppm1[counter];
+      counter++;
+      if(counter>90){
+        counter = 0;
+        }
+      Serial.print("ppm1: ");  
+      Serial.print(ppm1[counter] );
+      //Serial.print("; ppm2: ");  
+      //Serial.print(ppm2 );
+     // Serial.print("; deltaPPM: ");  
+      //Serial.println(ppm2-ppm1 );
+    }
+  } 
+}
+
+
+void loop() {
+
+ 
+
+  
+ 
 
 }

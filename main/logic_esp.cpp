@@ -4,8 +4,7 @@
 
 void calibSensors(){
  ledcWrite(0, 255);
-  delay(period1);
-   
+  delay(1000);
   ledcWrite(0, DutyCycle);
   delay(1000);
   mq7_Ro1 = calib_mq7_Ro(pin_voltageOn_CO1);
