@@ -59,9 +59,6 @@ void setup() {
   Serial.println(WiFi.localIP());
   server.begin();
 
-  initADC();  
-  dutyCycleOfPWM();
-  calibSensors();
 
 xTaskCreatePinnedToCore(Task1code,"server",10000,NULL,1,&Task1,0);                            
   delay(500); 
@@ -167,39 +164,9 @@ void Task2code( void * pvParameters ){
  // Serial.println(xPortGetCoreID());
  
   for(;;){
-     if (millis() - tmr >= (flag ? period2 : period1)) {
-    tmr = millis();
-    // TODO SWITCH
-      if(flag==0)
-      {
-        ledcWrite(0, 255);
-      }
-      if(flag==1)
-      {
-        ledcWrite(0, DutyCycle);
-      }
-     flag = !flag;
-    }
-    //contrer
-    if (millis() - tmr2 >= period3)
-    { 
-      
-      tmr2 = millis();
-      ppm1[counter] = get_rawValue_mq7(mq7_Ro1, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO1);
-      ppm2[counter] = get_rawValue_mq7(mq7_Ro2, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO2);
-      arr[counter]=ppm1[counter];
-      counter++;
-      if(counter>90){
-        counter = 0;
-        }
-      Serial.print("ppm1: ");  
-      Serial.print(ppm1[counter] );
-      //Serial.print("; ppm2: ");  
-      //Serial.print(ppm2 );
-     // Serial.print("; deltaPPM: ");  
-      //Serial.println(ppm2-ppm1 );
-    }
-  } 
+  
+  
+    } 
 }
 
 
