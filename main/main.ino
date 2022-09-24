@@ -1,6 +1,6 @@
 #include <WiFi.h>
 #include "main.h"
-#include "logic_esp.h"
+
 
 
 TaskHandle_t Task1;
@@ -17,6 +17,9 @@ uint32_t tmr;
 uint32_t tmr2;
 bool flag = false;
 
+
+
+
 //_____________________________________________________
 
 WiFiServer server(80);
@@ -28,13 +31,11 @@ unsigned long previousTime = 0;
 const long timeoutTime = 2000;
 int arr[90]={0};
 int arrayDiff[90]={0};
-const char* ssid = "lab-503";
-const char* password = "***";
+const char* ssid = "netis_1C1745";
+const char* password = "password";
 //arduino_git
 //arduino_ghub
 //_____________________________________________________
-
-
 
 
 
@@ -60,6 +61,8 @@ void setup() {
   server.begin();
 
 
+
+
 xTaskCreatePinnedToCore(Task1code,"server",10000,NULL,1,&Task1,0);                            
   delay(500); 
 xTaskCreatePinnedToCore(Task2code,"main_logic",10000,NULL,1,&Task2,1);
@@ -68,13 +71,34 @@ xTaskCreatePinnedToCore(Task2code,"main_logic",10000,NULL,1,&Task2,1);
  
 }
 //  test markup
-
+float temp = 110;
 void Task1code( void * pvParameters ){
  // Serial.print("Task1 running on core ");
  // Serial.println(xPortGetCoreID());
  
   for(;;){
+   delay(1000);
+    //temp = dht.readTemperature();
+    temp = analogRead(13);
+    float pm = analogRead(12);
     
+        delay(400);
+    Serial.print("val : ");
+    Serial.println(temp);
+    
+  vTaskDelay(1000); 
+  } 
+}
+
+
+
+
+void Task2code( void * pvParameters ){
+ // Serial.print("Task1 running on core ");
+ // Serial.println(xPortGetCoreID());
+
+  for(;;){
+       
   WiFiClient client = server.available();   
 
   if (client) {                            
@@ -152,29 +176,14 @@ void Task1code( void * pvParameters ){
     client.stop();
     Serial.println("Client disconnected.");
     Serial.println("");
-  }
-  } 
-}
 
-
-
-
-void Task2code( void * pvParameters ){
- // Serial.print("Task1 running on core ");
- // Serial.println(xPortGetCoreID());
- 
-  for(;;){
-  
-  
+    vTaskDelay(1000); 
     } 
+}
 }
 
 
 void loop() {
 
- 
-
-  
- 
 
 }
