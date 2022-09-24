@@ -1,6 +1,10 @@
 #include "logic_esp.h"
 
 
+int aboba_func() {
+  return 0;
+}
+
 
 void calibSensors(){
  ledcWrite(0, 255);

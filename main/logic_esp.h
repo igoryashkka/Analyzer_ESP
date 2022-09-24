@@ -1,6 +1,6 @@
 #include <Adafruit_ADS1X15.h>
 //____________________________________________________
-
+int aboba_func();
 #define pin_voltageOntransistor 1 //напруга на транзисторі
 #define pin_voltageOn_CO1 2 //напруга на першому датчику
 #define pin_voltageOn_CO2 3 //напруга на другому датчику
@@ -36,3 +36,4 @@ void dutyCycleOfPWM();
 
 
 //____________________________________________________  
+int aboba_func();

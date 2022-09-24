@@ -43,6 +43,7 @@ const char* password = "***";
 //_____________________________________________________
 
 void setup() {
+  int aboba_func();
   // put your setup code here, to run once:
   Serial.begin(115200);
   Serial.print("Connecting to ");
