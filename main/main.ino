@@ -18,7 +18,8 @@
 #define period2 90*1000L
 #define period3 1000L
 #define period4 3000L
-
+//aboba
+//aboba
 Adafruit_ADS1015 ads;
 
 //separate 
