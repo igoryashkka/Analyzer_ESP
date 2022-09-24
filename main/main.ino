@@ -75,14 +75,14 @@ float temp = 110;
 void Task1code( void * pvParameters ){
  // Serial.print("Task1 running on core ");
  // Serial.println(xPortGetCoreID());
- 
+ int counter = 0;
   for(;;){
    delay(1000);
     //temp = dht.readTemperature();
-    temp = analogRead(13);
-    float pm = analogRead(12);
-    
-        delay(400);
+    temp = analogRead(39);
+    counter++;
+    arr[counter] = temp;
+    if(counter > 89){counter = 0;}
     Serial.print("val : ");
     Serial.println(temp);
     
@@ -146,8 +146,15 @@ void Task2code( void * pvParameters ){
             client.println("], }] };   ");
             client.println("const config = { type: 'line', data: data, options: {} }; </script><script> const myChart = new Chart( document.getElementById('myChart'), config ); </script>");
             client.println("</div> <p>Data processing from CO analyzer is presented in the form of a graph.</p> <p>The X axis - represents the unit of time</p> <p>The Y axis - CO level in units of measurement (ppm)</p> </div> <div class=\"card\"> <h2>Tabular presentation of dimension data</h2>");
+            
+           
+            
             client.println("<table> <tr> <th>Show signal sensor, (ppm) </th> <th>Difference, (ppm)</th> <th>Time of measurements, (c)</th></tr>");
-            client.println("<tr> <td>");client.println(arr[0]);client.println("</td> <td>"); client.println(arrayDiff[0]);client.println("</td> <td>0</td> </tr>");
+             for(int i = 0;i < 89;i++){
+            client.println("<tr> <td>");client.println(arr[i]);client.println("</td> <td>"); client.println(arrayDiff[i]);client.println("</td> <td>");client.println(i);client.println("</td> </tr>");
+
+            }
+            /*
             client.println("<tr> <td>");client.println(arr[1]);client.println("</td> <td>"); client.println(arrayDiff[1]);client.println("</td> <td>1</td> </tr>");
             client.println("<tr> <td>");client.println(arr[2]);client.println("</td> <td>"); client.println(arrayDiff[2]);client.println("</td> <td>2</td> </tr>");
             client.println("<tr> <td>");client.println(arr[3]);client.println("</td> <td>"); client.println(arrayDiff[3]);client.println("</td> <td>3</td> </tr>");
@@ -158,6 +165,7 @@ void Task2code( void * pvParameters ){
             client.println("<tr> <td>");client.println(arr[8]);client.println("</td> <td>"); client.println(arrayDiff[8]);client.println("</td> <td>8</td> </tr>");
             client.println("<tr> <td>");client.println(arr[9]);client.println("</td> <td>"); client.println(arrayDiff[9]);client.println("</td> <td>9</td> </tr>");
             client.println("<tr> <td>");client.println(arr[10]);client.println("</td> <td>"); client.println(arrayDiff[10]);client.println("</td> <td>10</td>");
+           */
             client.println("</tr></table>");
 
             client.println("</div> </div> <div class=\"rightcolumn\"> <div class=\"card\"> <h2>CO Analyzer</h2> <div class=\"fakeimg\" style=\"height:100px;\"> <p>Main components : Microcontroller ESP-32 , CO sensor MQ-7, Line stabilizer L1117 33C, MOSFET transistor IRLZ44 12</p> </div> </div> <div class=\"card\"> <h3>ESP-WROOM-32</h3> <div class=\"fakeimg0\"><img style=\"width: 100%\" src=\"https://raspberry.com.ua/data/uploads/2020/05/3269-13.jpg\" /></div> </div> <div class=\"card\"> <h3>Download data in pdf</h3> <div class=\"fakeimg\"><button class=\"button\">load</button></div> </div> </div> </div> <div class=\"footer\"> <h3>CO Analyzer</h3> <h3>by Igor Yashan , ILiaya</h3> </div>");   
