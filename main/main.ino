@@ -41,11 +41,8 @@ const char* password = "***";
 
 
 //_____________________________________________________
-
-void setup() {
-  int aboba_func();
-  // put your setup code here, to run once:
-  Serial.begin(115200);
+void initESP(){
+Serial.begin(115200);
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
@@ -60,6 +57,16 @@ void setup() {
   Serial.println(WiFi.localIP());
   server.begin();
 
+
+}
+
+
+
+void setup() {
+  // put your setup code here, to run once:
+
+
+  initESP();  
   initADC();  
   dutyCycleOfPWM();
   calibSensors();
