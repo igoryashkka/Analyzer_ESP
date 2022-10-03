@@ -19,7 +19,6 @@ bool flag = false;
 
 
 
-
 //_____________________________________________________
 
 WiFiServer server(80);
@@ -31,8 +30,8 @@ unsigned long previousTime = 0;
 const long timeoutTime = 2000;
 int arr[90]={0};
 int arrayDiff[90]={0};
-const char* ssid = "netis_1C1745";
-const char* password = "password";
+const char* ssid = "w_land";
+const char* password = "antarisstar";
 //arduino_git
 //arduino_ghub
 //_____________________________________________________
@@ -71,18 +70,43 @@ xTaskCreatePinnedToCore(Task2code,"main_logic",10000,NULL,1,&Task2,1);
  
 }
 //  test markup
+int notCounterCycle = 1;
+bool isMesurment = true;
 float temp = 110;
+int secondsOfMesurment = 1;
+int counterCycle = 1;
+void getDelaySecondCycle(int timeDelay){
+    isMesurment = false;
+   
+    delay(timeDelay);
+  }
+
 void Task1code( void * pvParameters ){
  // Serial.print("Task1 running on core ");
  // Serial.println(xPortGetCoreID());
  int counter = 0;
+ 
   for(;;){
    delay(1000);
     //temp = dht.readTemperature();
-    temp = analogRead(39);
+    if(isMesurment){
+      temp = analogRead(39);
+      }
+    
     counter++;
+    secondsOfMesurment = counter;
     arr[counter] = temp;
-    if(counter > 89){counter = 0;}
+    if(counter > 89){
+      counter = 0;
+      counterCycle++;
+      //todoFunc for fecth Data
+      if(counterCycle){//todo next steps}
+      getDelaySecondCycle(60 * 1000);
+      memset(arr,0,90 * sizeof(int));
+     isMesurment = true;
+    }
+    
+
     Serial.print("val : ");
     Serial.println(temp);
     
@@ -127,7 +151,17 @@ void Task2code( void * pvParameters ){
             client.println("");
 
             client.println("<body><div class=\"header\"> <h1>CO Analyzer</h1> <p>Built on ESP32</p> </div>");
-            client.println("<div class=\"row\"> <div class=\"leftcolumn\"> <div class=\"card\"> <h2>Data processing from CO analyzer is presented in the form of a graph.</h2> <h5> The measurement cycle is 90 seconds. Number of cycle");
+            client.println("<div class=\"row\"> <div class=\"leftcolumn\"> <div class=\"card\"> <h2>Data processing from CO analyzer is presented in the form of a graph.</h2> <h5> The measurement cycle is 90 seconds.");
+            client.println("Number of cycle");
+            client.println(counterCycle);
+            client.println(" Seconds : ");
+            client.println(secondsOfMesurment);
+
+          if(!isMesurment){
+            
+               client.println(" Pls WAIT : data will update in 60 sec");
+            }
+            
             //client.println(numberMeasurement);
             client.println("</h5> <div class=\"fakeimg\" style=\"height:800px;\">");
             client.println("<div> <canvas id=\"myChart\"></canvas> </div> <script> const labels = [ '00:01','00:02','00:03','00:04','00:05','00:06','00:07','00:08','00:09','00:10','00:11','00:12','00:13','00:14','00:15','00:16','00:17','00:18','00:19','00:20','00:21','00:22','00:23','00:24','00:25','00:26','00:27','00:28','00:29','00:30','00:31','00:32','00:33','00:34','00:35','00:36','00:37','00:38','00:39','00:40','00:41','00:42','00:43','00:44','00:45','00:46','00:47','00:48','00:49','00:50','00:51','00:52','00:53','00:54','00:55','00:56','00:57','00:58','00:59','01:00','01:01','01:02','01:03','01:04','01:05','01:06','01:07','01:08','01:09','01:10','01:11','01:12','01:13','01:14','01:15','01:16','01:17','01:18','01:19','01:20','01:21','01:22','01:23','01:24','01:25','01:26','01:27','01:28','01:29','01:30', ]; const data = { labels: labels, datasets: [{ label: 'My First dataset', backgroundColor: 'rgb(255, 99, 132)', borderColor: 'rgb(255, 99, 132)',");
@@ -150,6 +184,8 @@ void Task2code( void * pvParameters ){
            
             
             client.println("<table> <tr> <th>Show signal sensor, (ppm) </th> <th>Difference, (ppm)</th> <th>Time of measurements, (c)</th></tr>");
+            
+            
              for(int i = 0;i < 89;i++){
             client.println("<tr> <td>");client.println(arr[i]);client.println("</td> <td>"); client.println(arrayDiff[i]);client.println("</td> <td>");client.println(i);client.println("</td> </tr>");
 
