@@ -20,7 +20,7 @@ static int DutyCycle = 0;
 static int mq7_Ro1, mq7_Ro2;
 static int ppm1[90];
 static int ppm2[90];
-static int counter = 0;
+
 
 
 

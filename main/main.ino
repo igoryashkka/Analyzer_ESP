@@ -21,7 +21,7 @@ bool flag = false;
 
 WiFiServer server(80);
 
-int numberMeasurement = 1; 
+
 String header;
 unsigned long currentTime = millis();
 unsigned long previousTime = 0; 
@@ -34,9 +34,10 @@ const char* password = "***";
 //arduino_ghub
 //_____________________________________________________
 
-
-
-
+bool isMesurment = true;
+bool isReload = true;
+int counterCycle = 1;
+int counter = 0;
 
 
 
@@ -68,6 +69,8 @@ void setup() {
 
   initESP();  
   initADC();  
+
+  //what they do ???
   dutyCycleOfPWM();
   calibSensors();
 
@@ -116,11 +119,11 @@ void Task1code( void * pvParameters ){
                 client.println("Number of cycle");
             client.println(counterCycle);
             client.println(" Seconds : ");
-            client.println(secondsOfMesurment);
+            client.println(counter);
 
           if(!isMesurment){
             
-               client.println(" Pls WAIT : data will update in 60 sec");
+               client.println(" Pls WAIT 60 sec to reload page ...");
 
             }
 
@@ -129,7 +132,7 @@ void Task1code( void * pvParameters ){
              client.println("<script> window.setTimeout( function(){ window.location.reload();}, 5000); </script>");
             }
             
-            //client.println(numberMeasurement);
+            
             client.println("</h5> <div class=\"fakeimg\" style=\"height:800px;\">");
             client.println("<div> <canvas id=\"myChart\"></canvas> </div> <script> const labels = [ '00:01','00:02','00:03','00:04','00:05','00:06','00:07','00:08','00:09','00:10','00:11','00:12','00:13','00:14','00:15','00:16','00:17','00:18','00:19','00:20','00:21','00:22','00:23','00:24','00:25','00:26','00:27','00:28','00:29','00:30','00:31','00:32','00:33','00:34','00:35','00:36','00:37','00:38','00:39','00:40','00:41','00:42','00:43','00:44','00:45','00:46','00:47','00:48','00:49','00:50','00:51','00:52','00:53','00:54','00:55','00:56','00:57','00:58','00:59','01:00','01:01','01:02','01:03','01:04','01:05','01:06','01:07','01:08','01:09','01:10','01:11','01:12','01:13','01:14','01:15','01:16','01:17','01:18','01:19','01:20','01:21','01:22','01:23','01:24','01:25','01:26','01:27','01:28','01:29','01:30', ]; const data = { labels: labels, datasets: [{ label: 'My First dataset', backgroundColor: 'rgb(255, 99, 132)', borderColor: 'rgb(255, 99, 132)',");
             client.println("  data: [");
@@ -174,9 +177,11 @@ void Task2code( void * pvParameters ){
  // Serial.println(xPortGetCoreID());
  
   for(;;){
-     if (millis() - tmr >= (flag ? period2 : period1)) {
-    tmr = millis();
-    // TODO SWITCH
+
+
+    if (millis() - tmr >= (flag ? period2 : period1)) {
+      tmr = millis();
+      // TODO SWITCH
       if(flag==0)
       {
         ledcWrite(0, 255);
@@ -187,6 +192,12 @@ void Task2code( void * pvParameters ){
       }
      flag = !flag;
     }
+
+      //if button press do this
+      // counter_MESURMENT (1,2,3,4,5...)
+      //and stop
+
+
     //contrer
     if (millis() - tmr2 >= period3)
     { 
@@ -198,14 +209,17 @@ void Task2code( void * pvParameters ){
       counter++;
       if(counter>90){
         counter = 0;
+        counterCycle++;
         }
       Serial.print("ppm1: ");  
       Serial.print(ppm1[counter] );
-      //Serial.print("; ppm2: ");  
+      //Serial.print("; ppm2: ");  //
       //Serial.print(ppm2 );
      // Serial.print("; deltaPPM: ");  
       //Serial.println(ppm2-ppm1 );
     }
+
+
   } 
 }
 
