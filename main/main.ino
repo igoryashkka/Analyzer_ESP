@@ -29,12 +29,13 @@ int arrayDiff[90]={0};
 //_____________________________________________________
 
 //  test markup
-int notCounterCycle = 1;
 bool isMesurment = true;
 bool isReload = true;
 float temp = 110;
 int secondsOfMesurment = 1;
 int counterCycle = 1;
+bool endMesurment = false;
+
 
 
 
@@ -44,19 +45,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
     initESP();
- // Serial.print("Connecting to ");
- // Serial.println(ssid);
- // WiFi.begin(ssid, password);
-//  while (WiFi.status() != WL_CONNECTED) {
- //   delay(500);
- //   Serial.print(".");
- // }
-  // Print local IP address and start web server
-  //Serial.println("");
-  //Serial.println("WiFi connected.");
- // Serial.println("IP address: ");
- // Serial.println(WiFi.localIP());
- // server.begin();
+
 
 
 
@@ -72,7 +61,7 @@ xTaskCreatePinnedToCore(Task2code,"main_logic",10000,NULL,1,&Task2,1);
 
 void getDelaySecondCycle(int timeDelay){
     isMesurment = false;
-   isReload = false;
+    isReload = false;
     delay(timeDelay);
    
   }
@@ -86,28 +75,35 @@ void Task1code( void * pvParameters ){
   for(;;){
    delay(1000);
     //temp = dht.readTemperature();
-    if(isMesurment){
-      temp = analogRead(39);
-      }
-    
+    //
 
-    secondsOfMesurment = counter;
-    arr[counter] = temp;
-    counter++;
-    if(counter > 90){
+    if(counterCycle>2){
+      endMesurment = true;
+      isReload = false;
+    }
+        Serial.println("Cycle Number");
+        Serial.println(counterCycle);
+    if(isMesurment && !endMesurment ){
+        
+        temp = analogRead(39);
+        secondsOfMesurment = counter;
+        arr[counter] = temp;
+        counter++;
+      if(counter > 90){
       counter = 0;
       counterCycle++;
-     
-
       //todoFunc for fecth Data
-      if(counterCycle){
-        //todo next steps
+      //todo next steps
       getDelaySecondCycle(60 * 1000);
       memset(arr,0,90 * sizeof(int));
-     isMesurment = true;
-    
+      isMesurment = true;
+      isReload = true;
+      }
     }
-    isReload = true;  
+    
+
+  
+      
 
     Serial.print("val : ");
     Serial.println(temp);
@@ -115,7 +111,7 @@ void Task1code( void * pvParameters ){
   vTaskDelay(1000); 
   } 
 }
-}
+
 
 
 
@@ -126,7 +122,7 @@ void Task2code( void * pvParameters ){
 
   for(;;){
        
- startServer( counter, counterCycle, isMesurment, isReload);
+ startServer( counter, counterCycle, isMesurment, isReload,endMesurment);
        
 }
 }
