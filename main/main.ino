@@ -7,7 +7,6 @@ TaskHandle_t Task1;
  
 TaskHandle_t Task2;
 //____________________________________________________
-
 #define period1 60*1000L
 #define period2 90*1000L
 #define period3 1000L
@@ -17,6 +16,9 @@ uint32_t tmr;
 uint32_t tmr2;
 bool flag = false;
 
+
+
+//_____________________________________________________
 
 
 //_____________________________________________________
@@ -69,14 +71,64 @@ void getDelaySecondCycle(int timeDelay){
     delay(timeDelay);
    
   }
+// transmit [1000l] in if ...
+//defently long ? or mabe int or mabe uint ?
+const unsigned long periodMesurmentV = 90 * 1000L;// or absorb
+#define periodMesurment 90*1000L// or absorb
+const unsigned long periodDeabsorbV = 60 * 1000L;
+#define periodDeabsorb 60*1000L
+const unsigned long oneSecondV = 1000L;
+#define oneSecond 1000L
+uint32_t timerDetectProcces; 
+uint32_t timerEverySecond;  
+bool flagDetectProcces = false;
 
-
- 
 
 void Task1code( void * pvParameters ){
 
  
   for(;;){
+
+
+      /*
+     Serial.println("Befor if timerDetectProcces");
+    if (millis() - timerDetectProcces >= (flagDetectProcces ? periodMesurment : periodDeabsorb)) {
+      timerDetectProcces = millis();
+      // TODO SWITCH
+      Serial.println("in if timerDetectProcces _ 0");
+      if(flagDetectProcces==0)
+      {
+        ledcWrite(0, 255);
+        Serial.println("log_0");
+      }
+      if(flagDetectProcces==1)
+      {
+        ledcWrite(0, 0);//DutyCycle????
+        Serial.println("log_1");
+      }
+     flagDetectProcces = !flagDetectProcces;
+     Serial.println("in if timerDetectProcces _ 1");
+    }
+     Serial.println("after if timerDetectProcces");
+
+    if (millis() - timerEverySecond >= oneSecond)
+    { 
+      timerEverySecond = millis();
+      Serial.println("analog");
+      int temp = analogRead(39);
+      Serial.println(temp);
+      arr[counterSeconds] = temp;
+      counterSeconds++;
+      if(counterSeconds>90){
+        counterSeconds = 0;
+        counterCycle++;
+        }
+        Serial.print("arr[counterSeconds]");
+      Serial.print(arr[counterSeconds]);
+      
+    }
+*/
+
 
     //if button did not press - not measurement
     //if button press - do [oneCycle * counterCycleFromUser] ; oneCycle is 90s(measurement or absorb) + 60s(reabsorb)
@@ -103,7 +155,9 @@ void Task1code( void * pvParameters ){
             isReloadPage = false;
       }
   
-    
+   
+
+
   vTaskDelay(1000); 
   } 
 }
@@ -117,7 +171,7 @@ void Task2code( void * pvParameters ){
   for(;;){
        
     startServer( counterSeconds, counterCycle, isMesurment, isReloadPage,isReabsorb);
-       
+       vTaskDelay(1000); 
   }
 }
 
