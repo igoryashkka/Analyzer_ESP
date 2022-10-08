@@ -1,5 +1,6 @@
 #include "web_server.h"
 #include "main.h"
+#include "logic_esp.h"
 
 
 
@@ -25,7 +26,12 @@ bool flag = false;
 
 int arr[90]={0};
 int arrayDiff[90]={0};
+int ppm1;
+int ppm2;
 
+int DutyCycle = 0;
+int mq7_Ro1;
+int mq7_Ro2;
 //arduino_git
 //arduino_ghub
 //_____________________________________________________
@@ -42,6 +48,14 @@ int timAbsorb = 90;
 int timDeabsorb = 60;
 
 
+const unsigned long periodMesurmentV = 20 * 1000L;// or absorb
+const unsigned long periodDeabsorbV = 10 * 1000L;
+const unsigned long oneSecondV = 1000L;
+uint32_t timerDetectProcces; 
+uint32_t timerEverySecond;  
+bool flagDetectProcces = false;
+
+
 
 
 //_____________________________________________________
@@ -50,6 +64,10 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
     initESP();
+
+  initADC();
+  dutyCycleOfPWM();
+  setupSensors();
 
 
 
@@ -73,15 +91,6 @@ void getDelaySecondCycle(int timeDelay){
   }
 // transmit [1000l] in if ...
 //defently long ? or mabe int or mabe uint ?
-const unsigned long periodMesurmentV = 90 * 1000L;// or absorb
-#define periodMesurment 90*1000L// or absorb
-const unsigned long periodDeabsorbV = 60 * 1000L;
-#define periodDeabsorb 60*1000L
-const unsigned long oneSecondV = 1000L;
-#define oneSecond 1000L
-uint32_t timerDetectProcces; 
-uint32_t timerEverySecond;  
-bool flagDetectProcces = false;
 
 
 void Task1code( void * pvParameters ){
@@ -90,9 +99,9 @@ void Task1code( void * pvParameters ){
   for(;;){
 
 
-      /*
+      
      Serial.println("Befor if timerDetectProcces");
-    if (millis() - timerDetectProcces >= (flagDetectProcces ? periodMesurment : periodDeabsorb)) {
+    if (millis() - timerDetectProcces >= (flagDetectProcces ? periodMesurmentV : periodDeabsorbV)) {
       timerDetectProcces = millis();
       // TODO SWITCH
       Serial.println("in if timerDetectProcces _ 0");
@@ -103,7 +112,7 @@ void Task1code( void * pvParameters ){
       }
       if(flagDetectProcces==1)
       {
-        ledcWrite(0, 0);//DutyCycle????
+        ledcWrite(0, DutyCycle);//DutyCycle????
         Serial.println("log_1");
       }
      flagDetectProcces = !flagDetectProcces;
@@ -111,13 +120,19 @@ void Task1code( void * pvParameters ){
     }
      Serial.println("after if timerDetectProcces");
 
-    if (millis() - timerEverySecond >= oneSecond)
+    if (millis() - timerEverySecond >= oneSecondV)
     { 
       timerEverySecond = millis();
-      Serial.println("analog");
-      int temp = analogRead(39);
-      Serial.println(temp);
-      arr[counterSeconds] = temp;
+      ppm1 = get_rawValue_mq7(mq7_Ro1, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO1);
+      ppm2 = get_rawValue_mq7(mq7_Ro2, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO2);
+      Serial.print("ppm1: ");  
+   //   Serial.print(ppm1 );
+      Serial.print("; ppm2: ");  
+  //    Serial.print(ppm2 );
+      Serial.print("; deltaPPM: ");  
+      //Serial.println(ppm2-ppm1 );
+      //Serial.println(temp);
+      arr[counterSeconds] = ppm1;
       counterSeconds++;
       if(counterSeconds>90){
         counterSeconds = 0;
@@ -127,12 +142,12 @@ void Task1code( void * pvParameters ){
       Serial.print(arr[counterSeconds]);
       
     }
-*/
+
 
 
     //if button did not press - not measurement
     //if button press - do [oneCycle * counterCycleFromUser] ; oneCycle is 90s(measurement or absorb) + 60s(reabsorb)
-    
+    /*
     if(counterCycle<=counterCycleFromUser){      
       if(isMesurment){
         arr[counterSeconds] = analogRead(39);
@@ -154,7 +169,7 @@ void Task1code( void * pvParameters ){
           isMesurment = false;
             isReloadPage = false;
       }
-  
+  */
    
 
 
