@@ -16,7 +16,7 @@ const char* password = "antarisstar";
 extern int arrayDiff[90];
 extern int arr[90];
 
-void startServer(int counter,int counterCycle,bool isMesurment,bool isReload,bool endMesurment){
+void startServer(int counterSeconds,int counterCycle,bool isMesurment,bool isReloadPage,bool isReabsorb){
 
   
   WiFiClient client = server.available();   
@@ -51,17 +51,17 @@ void startServer(int counter,int counterCycle,bool isMesurment,bool isReload,boo
                 client.println("Number of cycle");
             client.println(counterCycle);
             client.println(" Seconds : ");
-            client.println(counter);
+            client.println(counterSeconds);
 
-          if(!isMesurment){
+          if(isReabsorb){
             
                client.println(" Pls,reload page in 60 sec...");
 
             }
 
             
-             if(isReload){
-             client.println("<script> window.setTimeout( function(){ window.location.reload();}, 5000); </script>");
+             if(isReloadPage){
+             client.println("<script> window.setTimeout( function(){ window.location.reload();}, 7000); </script>");
             }
             
             
@@ -74,12 +74,21 @@ void startServer(int counter,int counterCycle,bool isMesurment,bool isReload,boo
             client.println("], }] };   ");
             client.println("const config = { type: 'line', data: data, options: {} }; </script><script> const myChart = new Chart( document.getElementById('myChart'), config ); </script>");
             client.println("</div> <p>Data processing from CO analyzer is presented in the form of a graph.</p> <p>The X axis - represents the unit of time</p> <p>The Y axis - CO level in units of measurement (ppm)</p> </div> <div class=\"card\"> <h2>Tabular presentation of dimension data</h2>");
+              if(isMesurment){
             client.println("<table> <tr> <th>Show signal sensor, (ppm) </th> <th>Difference, (ppm)</th> <th>Time of measurements, (c)</th></tr>");
               for(int i = 0, jTime = 1;i < 90;i++,jTime++){
             client.println("<tr> <td>");client.println(arr[i]);client.println("</td> <td>"); client.println(arrayDiff[i]);client.println("</td> <td>");client.println(jTime);client.println("</td> </tr>");
 
             }
+            client.println("</tr></table>");}else {
+              
+              client.println("<table> <tr> <th>Avarange signal sensor, (ppm) </th> <th>Difference, (ppm)</th> <th>Time of measurements, (c)</th></tr>");
+              for(int i = 84, jTime = 1;i < 90;i++,jTime++){
+            client.println("<tr> <td>");client.println(arr[i]);client.println("</td> <td>"); client.println(arrayDiff[i]);client.println("</td> <td>");client.println(jTime);client.println("</td> </tr>");
+
+            }
             client.println("</tr></table>");
+              }
 
             client.println("</div> </div> <div class=\"rightcolumn\"> <div class=\"card\"> <h2>CO Analyzer</h2> <div class=\"fakeimg\" style=\"height:100px;\"> <p>Main components : Microcontroller ESP-32 , CO sensor MQ-7, Line stabilizer L1117 33C, MOSFET transistor IRLZ44 12</p> </div> </div> <div class=\"card\"> <h3>ESP-WROOM-32</h3> <div class=\"fakeimg0\"><img style=\"width: 100%\" src=\"https://raspberry.com.ua/data/uploads/2020/05/3269-13.jpg\" /></div> </div> <div class=\"card\"> <h3>Download data in pdf</h3> <div class=\"fakeimg\"><button class=\"button\">load</button></div> </div> </div> </div> <div class=\"footer\"> <h3>CO Analyzer</h3> <h3>by Igor Yashan , ILiaya</h3> </div>");   
             client.println("</body></html>");

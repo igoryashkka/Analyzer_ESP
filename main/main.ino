@@ -29,12 +29,15 @@ int arrayDiff[90]={0};
 //_____________________________________________________
 
 //  test markup
+
 bool isMesurment = true;
-bool isReload = true;
-float temp = 110;
-int secondsOfMesurment = 1;
+bool isReabsorb = false;
+bool isReloadPage = true;
 int counterCycle = 1;
-bool endMesurment = false;
+int counterCycleFromUser = 3;
+int counterSeconds = 0;
+int timAbsorb = 90;
+int timDeabsorb = 60;
 
 
 
@@ -60,53 +63,46 @@ xTaskCreatePinnedToCore(Task2code,"main_logic",10000,NULL,1,&Task2,1);
 
 
 void getDelaySecondCycle(int timeDelay){
+    isReabsorb = true;
     isMesurment = false;
-    isReload = false;
+    isReloadPage = false;
     delay(timeDelay);
    
   }
 
 
- int counter = 0;
+ 
 
 void Task1code( void * pvParameters ){
 
  
   for(;;){
-   delay(1000);
-    //temp = dht.readTemperature();
-    //
 
-    if(counterCycle>2){
-      endMesurment = true;
-      isReload = false;
-    }
-        Serial.println("Cycle Number");
-        Serial.println(counterCycle);
-    if(isMesurment && !endMesurment ){
-        
-        temp = analogRead(39);
-        secondsOfMesurment = counter;
-        arr[counter] = temp;
-        counter++;
-      if(counter > 90){
-      counter = 0;
-      counterCycle++;
-      //todoFunc for fecth Data
-      //todo next steps
-      getDelaySecondCycle(60 * 1000);
-      memset(arr,0,90 * sizeof(int));
-      isMesurment = true;
-      isReload = true;
-      }
-    }
+    //if button did not press - not measurement
+    //if button press - do [oneCycle * counterCycleFromUser] ; oneCycle is 90s(measurement or absorb) + 60s(reabsorb)
     
-
+    if(counterCycle<=counterCycleFromUser){      
+      if(isMesurment){
+        arr[counterSeconds] = analogRead(39);
+        delay(1000);
+        counterSeconds++; 
+          if(counterSeconds > 30){
+            counterSeconds = 0;
+            getDelaySecondCycle(10 * 1000);
+            memset(arr,0,90 * sizeof(int));
+            isReabsorb = false;
+            isMesurment = true;
+            isReloadPage = true;
+            counterCycle++;
+          }
+      }
+    }else
+    { 
+         isReabsorb =false; 
+          isMesurment = false;
+            isReloadPage = false;
+      }
   
-      
-
-    Serial.print("val : ");
-    Serial.println(temp);
     
   vTaskDelay(1000); 
   } 
@@ -120,7 +116,7 @@ void Task2code( void * pvParameters ){
 
   for(;;){
        
-    startServer( counter, counterCycle, isMesurment, isReload,endMesurment);
+    startServer( counterSeconds, counterCycle, isMesurment, isReloadPage,isReabsorb);
        
   }
 }
