@@ -55,13 +55,17 @@ void startServer(int counterSeconds,int counterCycle,bool isMesurment,bool isRel
 
           if(isReabsorb){
             
-               client.println(" Pls,reload page in 60 sec...");
+               client.println(" Pls,wait page in 60 sec...");
 
             }
 
-            
-             if(isReloadPage){
-             client.println("<script> window.setTimeout( function(){ window.location.reload();}, 7000); </script>");
+            if(isReabsorb){
+             client.println("<script> window.setTimeout( function(){ window.location.reload();}, 15000); </script>");
+            }
+
+
+             if(isMesurment){
+             client.println("<script> window.setTimeout( function(){ window.location.reload();}, 7500); </script>");
             }
             
             

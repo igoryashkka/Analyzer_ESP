@@ -38,8 +38,8 @@ int mq7_Ro2;
 
 //  test markup
 
-bool isMesurment = true;
-bool isReabsorb = false;
+bool isMesurment = false;
+bool isReabsorb = true;
 bool isReloadPage = true;
 int counterCycle = 1;
 int counterCycleFromUser = 3;
@@ -48,22 +48,22 @@ int timAbsorb = 90;
 int timDeabsorb = 60;
 
 
-const unsigned long periodMesurmentV = 20 * 1000L;// or absorb
-const unsigned long periodDeabsorbV = 10 * 1000L;
+// transmit [1000l] in if ...
+//defently long ? or mabe int or mabe uint ?
+//try to use not const
+const unsigned long periodMesurmentV = 90 * 1000L;// or absorb
+const unsigned long periodDeabsorbV = 60 * 1000L;
 const unsigned long oneSecondV = 1000L;
 uint32_t timerDetectProcces; 
 uint32_t timerEverySecond;  
 bool flagDetectProcces = false;
 
 
-
-
 //_____________________________________________________
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
-    initESP();
+  initESP();
 
   initADC();
   dutyCycleOfPWM();
@@ -73,54 +73,50 @@ void setup() {
 
 
 
-xTaskCreatePinnedToCore(Task1code,"server",10000,NULL,1,&Task1,0);                            
+  xTaskCreatePinnedToCore(Task1code,"server",10000,NULL,1,&Task1,0);                            
   delay(500); 
-xTaskCreatePinnedToCore(Task2code,"main_logic",10000,NULL,1,&Task2,1);
+  xTaskCreatePinnedToCore(Task2code,"main_logic",10000,NULL,1,&Task2,1);
   delay(500);
   
  
 }
 
 
-void getDelaySecondCycle(int timeDelay){
-    isReabsorb = true;
-    isMesurment = false;
-    isReloadPage = false;
-    delay(timeDelay);
-   
-  }
-// transmit [1000l] in if ...
-//defently long ? or mabe int or mabe uint ?
+
 
 
 void Task1code( void * pvParameters ){
-
- 
   for(;;){
 
 
-      
-     Serial.println("Befor if timerDetectProcces");
+        //if button did not press - not measurement
+    //if button press - do [oneCycle * counterCycleFromUser] ; oneCycle is 90s(measurement or absorb) + 60s(reabsorb)
+   
     if (millis() - timerDetectProcces >= (flagDetectProcces ? periodMesurmentV : periodDeabsorbV)) {
       timerDetectProcces = millis();
       // TODO SWITCH
-      Serial.println("in if timerDetectProcces _ 0");
+    
+      
+        
       if(flagDetectProcces==0)
       {
+        isReabsorb = true;
         ledcWrite(0, 255);
         Serial.println("log_0");
-      }
+      }else{isReabsorb = false; }
       if(flagDetectProcces==1)
       {
+        isMesurment = true;
         ledcWrite(0, DutyCycle);//DutyCycle????
         Serial.println("log_1");
-      }
-     flagDetectProcces = !flagDetectProcces;
-     Serial.println("in if timerDetectProcces _ 1");
-    }
-     Serial.println("after if timerDetectProcces");
+      }else {isMesurment = false;}
 
-    if (millis() - timerEverySecond >= oneSecondV)
+      flagDetectProcces = !flagDetectProcces;
+     
+    }
+     
+
+    if ((millis() - timerEverySecond >= oneSecondV) && isMesurment)
     { 
       timerEverySecond = millis();
       ppm1 = get_rawValue_mq7(mq7_Ro1, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO1);
@@ -137,6 +133,7 @@ void Task1code( void * pvParameters ){
       if(counterSeconds>90){
         counterSeconds = 0;
         counterCycle++;
+        memset(arr,0,90 * sizeof(int));
         }
         Serial.print("arr[counterSeconds]");
       Serial.print(arr[counterSeconds]);
@@ -145,31 +142,8 @@ void Task1code( void * pvParameters ){
 
 
 
-    //if button did not press - not measurement
-    //if button press - do [oneCycle * counterCycleFromUser] ; oneCycle is 90s(measurement or absorb) + 60s(reabsorb)
-    /*
-    if(counterCycle<=counterCycleFromUser){      
-      if(isMesurment){
-        arr[counterSeconds] = analogRead(39);
-        delay(1000);
-        counterSeconds++; 
-          if(counterSeconds > 30){
-            counterSeconds = 0;
-            getDelaySecondCycle(10 * 1000);
-            memset(arr,0,90 * sizeof(int));
-            isReabsorb = false;
-            isMesurment = true;
-            isReloadPage = true;
-            counterCycle++;
-          }
-      }
-    }else
-    { 
-         isReabsorb =false; 
-          isMesurment = false;
-            isReloadPage = false;
-      }
-  */
+  
+
    
 
 
