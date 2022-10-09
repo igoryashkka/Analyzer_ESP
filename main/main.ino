@@ -37,15 +37,13 @@ int mq7_Ro2;
 //_____________________________________________________
 
 //  test markup
-
+bool showSummaryPPM = false;
 bool isMesurment = false;
 bool isReabsorb = true;
 bool isReloadPage = true;
 int counterCycle = 1;
 int counterCycleFromUser = 3;
 int counterSeconds = 0;
-int timAbsorb = 90;
-int timDeabsorb = 60;
 
 
 // transmit [1000l] in if ...
@@ -65,9 +63,9 @@ void setup() {
   Serial.begin(115200);
   initESP();
 
-  initADC();
-  dutyCycleOfPWM();
-  setupSensors();
+  //initADC();
+  //dutyCycleOfPWM();
+  //setupSensors();
 
 
 
@@ -92,6 +90,8 @@ void Task1code( void * pvParameters ){
         //if button did not press - not measurement
     //if button press - do [oneCycle * counterCycleFromUser] ; oneCycle is 90s(measurement or absorb) + 60s(reabsorb)
    
+  if(counterCycle<counterCycleFromUser){
+
     if (millis() - timerDetectProcces >= (flagDetectProcces ? periodMesurmentV : periodDeabsorbV)) {
       timerDetectProcces = millis();
       // TODO SWITCH
@@ -100,16 +100,16 @@ void Task1code( void * pvParameters ){
         
       if(flagDetectProcces==0)
       {
-        isReabsorb = true;
-        ledcWrite(0, 255);
+        isReabsorb = false;
+       // ledcWrite(0, 255);
         Serial.println("log_0");
-      }else{isReabsorb = false; }
+      }else{isReabsorb = true; }
       if(flagDetectProcces==1)
       {
-        isMesurment = true;
-        ledcWrite(0, DutyCycle);//DutyCycle????
+        isMesurment = false;
+        //ledcWrite(0, DutyCycle);//DutyCycle????
         Serial.println("log_1");
-      }else {isMesurment = false;}
+      }else {isMesurment = true;}
 
       flagDetectProcces = !flagDetectProcces;
      
@@ -119,16 +119,19 @@ void Task1code( void * pvParameters ){
     if ((millis() - timerEverySecond >= oneSecondV) && isMesurment)
     { 
       timerEverySecond = millis();
-      ppm1 = get_rawValue_mq7(mq7_Ro1, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO1);
-      ppm2 = get_rawValue_mq7(mq7_Ro2, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO2);
-      Serial.print("ppm1: ");  
+    //  ppm1 = get_rawValue_mq7(mq7_Ro1, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO1);
+    //  ppm2 = get_rawValue_mq7(mq7_Ro2, MQ7_REFERENCE_VOLTAGE, pin_voltageOn_CO2);
+
+      arr[counterSeconds] = analogRead(39);
+
+   //   Serial.print("ppm1: ");  
    //   Serial.print(ppm1 );
-      Serial.print("; ppm2: ");  
+   //   Serial.print("; ppm2: ");  
   //    Serial.print(ppm2 );
-      Serial.print("; deltaPPM: ");  
+   //   Serial.print("; deltaPPM: ");  
       //Serial.println(ppm2-ppm1 );
       //Serial.println(temp);
-      arr[counterSeconds] = ppm1;
+   //   arr[counterSeconds] = ppm1;
       counterSeconds++;
       if(counterSeconds>90){
         counterSeconds = 0;
@@ -139,7 +142,11 @@ void Task1code( void * pvParameters ){
       Serial.print(arr[counterSeconds]);
       
     }
+    showSummaryPPM = false;
+  }else{
+      showSummaryPPM = true;
 
+  }
 
 
   
@@ -159,7 +166,7 @@ void Task2code( void * pvParameters ){
 
   for(;;){
        
-    startServer( counterSeconds, counterCycle, isMesurment, isReloadPage,isReabsorb);
+    startServer( counterSeconds, counterCycle, isMesurment, isReloadPage,isReabsorb,showSummaryPPM);
        vTaskDelay(1000); 
   }
 }

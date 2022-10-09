@@ -16,7 +16,7 @@ const char* password = "antarisstar";
 extern int arrayDiff[90];
 extern int arr[90];
 
-void startServer(int counterSeconds,int counterCycle,bool isMesurment,bool isReloadPage,bool isReabsorb){
+void startServer(int counterSeconds,int counterCycle,bool isMesurment,bool isReloadPage,bool isReabsorb,bool showSummaryPPM){
 
   
   WiFiClient client = server.available();   
@@ -78,7 +78,7 @@ void startServer(int counterSeconds,int counterCycle,bool isMesurment,bool isRel
             client.println("], }] };   ");
             client.println("const config = { type: 'line', data: data, options: {} }; </script><script> const myChart = new Chart( document.getElementById('myChart'), config ); </script>");
             client.println("</div> <p>Data processing from CO analyzer is presented in the form of a graph.</p> <p>The X axis - represents the unit of time</p> <p>The Y axis - CO level in units of measurement (ppm)</p> </div> <div class=\"card\"> <h2>Tabular presentation of dimension data</h2>");
-              if(isMesurment){
+              if(!showSummaryPPM){
             client.println("<table> <tr> <th>Show signal sensor, (ppm) </th> <th>Difference, (ppm)</th> <th>Time of measurements, (c)</th></tr>");
               for(int i = 0, jTime = 1;i < 90;i++,jTime++){
             client.println("<tr> <td>");client.println(arr[i]);client.println("</td> <td>"); client.println(arrayDiff[i]);client.println("</td> <td>");client.println(jTime);client.println("</td> </tr>");
